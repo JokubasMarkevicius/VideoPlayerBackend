@@ -1,5 +1,8 @@
 const uploadFile = require("../middleware/upload");
 const fs = require("fs");
+const { promisify } = require("util");
+
+const unlinkAsync = promisify(fs.unlink);
 
 const upload = async function (req, res) {
   try {
@@ -56,4 +59,13 @@ const downloadFile = function (req, res) {
   })
 }
 
-module.exports = { upload, getFilesList, downloadFile };
+const deleteFile = async function (req, res) {
+  try {
+    await unlinkAsync(`${__dirname}/../uploads/file-${req.body.fileTimeStamp}.mp4`)
+    res.status(202).send(`file-${req.body.fileTimeStamp}.mp4 deleted successfully`);
+  } catch (error) {
+    res.status(500).send({ message: `Could not delete file: file-${req.body.fileTimeStamp}.mp4`})
+  }
+}
+
+module.exports = { upload, getFilesList, downloadFile, deleteFile };
